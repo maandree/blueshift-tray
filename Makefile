@@ -12,19 +12,35 @@ DATADIR ?= $(PREFIX)$(DATA)
 LICENSEDIR ?= $(DATADIR)/licenses
 LOCALEDIR ?= $(DATADIR)/locale
 
-SHEBANG ?= /usr/bin/python2
+SHEBANG ?= /usr/bin/env python2
 COMMAND ?= blueshift-tray
 PKGNAME ?= blueshift-tray
 
 
 .PHONY: all
-all: bin/blueshift-tray
+all: command shell
+
+.PHONY: command
+command: bin/blueshift-tray
+
+.PHONY: shell
+shell: bash zsh fish
+
+.PHONY: bash
+bash: bin/blueshift-tray.bash
+
+.PHONY: zsh
+zsh: bin/blueshift-tray.zsh
+
+.PHONY: fish
+fish: bin/blueshift-tray.fish
 
 
-bin/blueshift-tray: src/blueshift-tray
+bin/blueshift-tray: src/blueshift-tray.py
 	@mkdir -p bin
 	cp $< $@
-	sed -i '' $@
+	sed -i '/^LOCALEDIR *= /s#^.*$$#LOCALEDIR = '\''$(LOCALEDIR)'\''#' $@
+	sed -i 's:^#!/usr/bin/env python2$$:#!$(SHEBANG):' $@
 
 bin/blueshift-tray.bash: src/completion
 	@mkdir -p bin
