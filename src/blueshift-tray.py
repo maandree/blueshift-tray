@@ -59,10 +59,10 @@ def create_menu(menu, image, title, function):
 
 def f_toggle(widget, data = None):
     process.send_signal(signal.SIGUSR2)
-    if icon.get_icon_name() == 'redshift-status-on':
-        icon.set_from_icon_name('redshift-status-off')
+    if icon.get_icon_name() == 'blueshift-on':
+        icon.set_from_icon_name('blueshift-off')
     else:
-        icon.set_from_icon_name('redshift-status-on')
+        icon.set_from_icon_name('blueshift-on')
 
 def f_reload(widget, data = None):
     process.send_signal(signal.SIGUSR1)
@@ -94,7 +94,7 @@ def f_popup(widget, button, time, data = None):
 
 try:
     icon = gtk.StatusIcon()
-    icon.set_from_icon_name('redshift-status-on')
+    icon.set_from_icon_name('blueshift-on')
     icon.set_tooltip('Blueshift')
     
     menu = gtk.Menu()

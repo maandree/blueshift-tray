@@ -11,10 +11,13 @@ BINDIR ?= $(PREFIX)$(BIN)
 DATADIR ?= $(PREFIX)$(DATA)
 LICENSEDIR ?= $(DATADIR)/licenses
 LOCALEDIR ?= $(DATADIR)/locale
+ICONDIR ?= $(DATADIR)/icons
 
 SHEBANG ?= /usr/bin/env python2
 COMMAND ?= blueshift-tray
 PKGNAME ?= blueshift-tray
+
+ICONS = blueshift blueshift-on blueshift-off
 
 
 .PHONY: all
@@ -62,9 +65,11 @@ install: install-base install-shell
 install-base: install-command install-license
 
 .PHONY: install-command
-install-command: bin/blueshift-tray
+install-command: bin/blueshift-tray $(foreach I,$(ICONS),icons/$(I).svg)
 	install -dm755 -- "$(DESTDIR)$(BINDIR)"
-	install -m755 $< -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
+	install -m755 bin/blueshift-tray -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
+	install -dm755 -- "$(DESTDIR)$(ICONDIR)/hicolor/scalable/apps"
+	install -m644 $(foreach I,$(ICONS),icons/$(I).svg) -- "$(DESTDIR)$(ICONDIR)/hicolor/scalable/apps"
 
 .PHONY: install-license
 install-license:
@@ -75,17 +80,17 @@ install-license:
 install-shell: install-bash install-zsh install-fish
 
 .PHONY: install-bash
-install-bash: bin/blueshift.bash
+install-bash: bin/blueshift-tray.bash
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/bash-completion/completions"
 	install -m644 $< -- "$(DESTDIR)$(DATADIR)/bash-completion/completions/$(COMMAND)"
 
 .PHONY: install-zsh
-install-zsh: bin/blueshift.zsh
+install-zsh: bin/blueshift-tray.zsh
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/zsh/site-functions"
 	install -m644 $< -- "$(DESTDIR)$(DATADIR)/zsh/site-functions/_$(COMMAND)"
 
 .PHONY: install-fish
-install-fish: bin/blueshift.fish
+install-fish: bin/blueshift-tray.fish
 	install -dm755 -- "$(DESTDIR)$(DATADIR)/fish/completions"
 	install -m644 $< -- "$(DESTDIR)$(DATADIR)/fish/completions/$(COMMAND).fish"
 
@@ -93,6 +98,7 @@ install-fish: bin/blueshift.fish
 .PHONY: uninstall
 uninstall:
 	-rm -- "$(DESTDIR)$(BINDIR)/$(COMMAND)"
+	-rm -- $(foreach I,$(ICONS),"$(DESTDIR)$(ICONDIR)/hicolor/scalable/apps/$(I).svg")
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE"
 	-rmdir -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
