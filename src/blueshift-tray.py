@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # blueshift-tray – Systray wrapper for Blueshift
 # Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)
