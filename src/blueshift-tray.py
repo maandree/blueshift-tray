@@ -33,7 +33,17 @@ gettext.bindtextdomain('blueshift', LOCALEDIR)
 gettext.textdomain('blueshift')
 
 
+def process_quit(signum, frame):
+    global running
+    process.wait()
+    if running:
+        running = False
+        icon.set_visible(False)
+        gtk.main_quit()
+
+signal.signal(signal.SIGCHLD, process_quit)
 process = subprocess.Popen(['blueshift'] + sys.argv[1:])
+running = True
 
 
 def create_menu(menu, image, title, function):
@@ -58,17 +68,23 @@ def f_reload(widget, data = None):
     process.send_signal(signal.SIGUSR1)
 
 def f_quit(widget, data = None):
-    icon.set_visible(False)
-    gtk.main_quit()
-    process.send_signal(signal.SIGTERM)
+    global running
+    if running:
+        running = False
+        icon.set_visible(False)
+        gtk.main_quit()
+        process.send_signal(signal.SIGTERM)
 
 def f_panic_quit(widget, data = None):
-    icon.set_visible(False)
-    gtk.main_quit()
-    process.send_signal(signal.SIGTERM)
-    import time
-    time.sleep(0.01)
-    process.send_signal(signal.SIGTERM)
+    global running
+    if running:
+        running = False
+        icon.set_visible(False)
+        gtk.main_quit()
+        process.send_signal(signal.SIGTERM)
+        import time
+        time.sleep(0.01)
+        process.send_signal(signal.SIGTERM)
 
 
 def f_popup(widget, button, time, data = None):
@@ -95,6 +111,7 @@ try:
     gtk.main()
 
 except KeyboardInterrupt:
+    running = False
     icon.set_visible(False)
     process.send_signal(signal.SIGTERM)
 
