@@ -4,3 +4,11 @@ RUNTIME DEPENDENCIES:
 	pygtk
 	blueshift>=1.4
 
+
+MAKE DEPENDENCIES:
+
+	make
+	coreutils
+	sed
+	auto-auto-complete
+
