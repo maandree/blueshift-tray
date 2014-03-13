@@ -62,7 +62,7 @@ def term(count = 1, kill = False):
         process.send_signal(signal.SIGTERM)
         if count > 1:
             for i in range(count - 1):
-                if process.poll():
+                if process.poll() is None:
                     time.sleep(0.1)
                     process.send_signal(signal.SIGTERM)
     if kill:
@@ -175,6 +175,6 @@ finally:
     except KeyboardInterrupt:
         term()
 
-if process.poll():
+if process.poll() is None:
     process.send_signal(signal.KILL)
 
