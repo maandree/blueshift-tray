@@ -104,8 +104,6 @@ def f_toggle(widget, data = None):
     if now < last_time + 0.2:
         return
     last_time = now
-    if paused is None:
-        paused = False
     process.send_signal(signal.SIGUSR2)
     icon.set_from_icon_name('blueshift-on' if paused else 'blueshift-off')
     paused = not paused
@@ -119,12 +117,8 @@ def f_quit(widget, data = None):
         running = False
         icon.set_visible(False)
         gtk.main_quit()
-        if paused is None:
-            term()
-        elif paused:
-            term(2, True)
-        else:
-            term(2, True)
+        term(1)
+        process.wait()
 
 def f_panic_quit(widget, data = None):
     global running
@@ -137,9 +131,9 @@ def f_panic_quit(widget, data = None):
 
 signal.signal(signal.SIGCHLD, process_quit)
 
-process = subprocess.Popen(['blueshift'] + sys.argv[1:])
+process = subprocess.Popen(['blueshift'] + sys.argv[1:], stdout = sys.stdout, stderr = sys.stderr)
 running = True
-paused = None
+paused = False
 last_time = time.time() - 1
 
 
@@ -176,5 +170,7 @@ finally:
         term()
 
 if process.poll() is None:
-    process.send_signal(signal.KILL)
+    time.sleep(0.1)
+    if process.poll() is None:
+        process.send_signal(signal.SIGKILL)
 
