@@ -2,7 +2,7 @@ RUNTIME DEPENDENCIES:
 
 	python2
 	pygtk
-	blueshift>=1.4
+	blueshift>=1.10
 
 
 MAKE DEPENDENCIES:
