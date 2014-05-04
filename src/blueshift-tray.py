@@ -36,12 +36,15 @@ gettext.textdomain('blueshift')
 
 def process_quit(signum, frame):
     '''
-    Invoked when a child process exists
+    Invoked when a child process exits or continues
     
     @param  signum:int   The signal (SIGCHLD)
     @param  frame:=None  Will probably be `None`
     '''
-    global running
+    global running, frozen_sig
+    if frozen_sig:
+        frozen_sig = False
+        return
     process.wait()
     if running:
         running = False
@@ -107,10 +110,21 @@ def f_toggle(widget, data = None):
     if now < last_time + 0.2:
         return
     last_time = now
-    process.send_signal(signal.SIGUSR2)
-    icon.set_from_icon_name('blueshift-on' if paused else 'blueshift-off')
-    toggle_menu.set_label(gettext.gettext('_Disable' if paused else '_Enable'))
     paused = not paused
+    process.send_signal(signal.SIGUSR2)
+    icon.set_from_icon_name('blueshift-off' if paused else 'blueshift-on')
+    toggle_menu.set_label(gettext.gettext('_Enable' if paused else '_Disable'))
+
+def f_suspend(widget, data = None):
+    global frozen, frozen_sig, last_time
+    now = time.time()
+    if now < last_time + 0.2:
+        return
+    last_time = now
+    frozen = not frozen
+    frozen_sig = True
+    process.send_signal(signal.SIGTSTP if frozen else signal.SIGCONT)
+    suspend_menu.set_label(gettext.gettext('_Thaw' if frozen else '_Freeze'))
 
 def f_reload(widget, data = None):
     process.send_signal(signal.SIGUSR1)
@@ -133,11 +147,14 @@ def f_panic_quit(widget, data = None):
         term(2, True)
 
 
+frozen_sig = False
+running = True
+paused = False
+frozen = False
+
 signal.signal(signal.SIGCHLD, process_quit)
 
 process = subprocess.Popen(['blueshift'] + sys.argv[1:], stdout = sys.stdout, stderr = sys.stderr)
-running = True
-paused = False
 last_time = time.time() - 1
 
 
@@ -148,6 +165,7 @@ try:
     
     menu = gtk.Menu()
     toggle_menu     = create_menu(menu, None, '_Disable', f_toggle)
+    suspend_menu    = create_menu(menu, None, '_Freeze', f_suspend)
     reload_menu     = create_menu(menu, gtk.STOCK_REFRESH, '_Reload', f_reload)
     create_menu(menu, None, None, None)
     quit_menu       = create_menu(menu, gtk.STOCK_QUIT, '_Quit', f_quit)
