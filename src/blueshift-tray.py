@@ -75,10 +75,11 @@ def create_menu(menu, image, title, function):
     '''
     Create a menu item
     
-    @param  menu:gtk.Menu                       The menu to place the item inside
-    @param  image:str?                          The icon on the menu item
-    @param  title:str?                          The text on the menu item
-    @param  function:(gtk.Widget, (=None))→void  The function invoked when the item is pressed
+    @param   menu:gtk.Menu                         The menu to place the item inside
+    @param   image:str?                            The icon on the menu item
+    @param   title:str?                            The text on the menu item
+    @param   function:(gtk.Widget, (=None))?→void  The function invoked when the item is pressed
+    @return  :gtk.MenuItem|gtk.ImageMenuItem       The created menu
     '''
     if image is None:
         menu_item = gtk.MenuItem(gettext.gettext(title))
@@ -86,8 +87,10 @@ def create_menu(menu, image, title, function):
         menu_item = gtk.ImageMenuItem(image)
         if title is not None:
             menu_item.set_label(gettext.gettext(title))
-    menu_item.connect('activate', function)
+    if function is not None:
+        menu_item.connect('activate', function)
     menu.append(menu_item)
+    return menu_item
 
 
 def f_popup(widget, button, time, data = None):
@@ -106,6 +109,7 @@ def f_toggle(widget, data = None):
     last_time = now
     process.send_signal(signal.SIGUSR2)
     icon.set_from_icon_name('blueshift-on' if paused else 'blueshift-off')
+    toggle_menu.set_label(gettext.gettext('Disabl_e' if paused else 'Enabl_e'))
     paused = not paused
 
 def f_reload(widget, data = None):
@@ -143,11 +147,11 @@ try:
     icon.set_tooltip('Blueshift')
     
     menu = gtk.Menu()
-    create_menu(menu, None, '_Toggle', f_toggle)
-    create_menu(menu, gtk.STOCK_REFRESH, '_Reload', f_reload)
-    create_menu(menu, None, None, f_reload)
-    create_menu(menu, gtk.STOCK_QUIT, '_Quit', f_quit)
-    create_menu(menu, gtk.STOCK_QUIT, '_Panic Quit', f_panic_quit)
+    toggle_menu = create_menu(menu, None, 'Disabl_e', f_toggle)
+    reload_menu = create_menu(menu, gtk.STOCK_REFRESH, '_Reload', f_reload)
+    create_menu(menu, None, None, None)
+    quit_menu = create_menu(menu, gtk.STOCK_QUIT, '_Quit', f_quit)
+    panic_quit_menu = create_menu(menu, gtk.STOCK_QUIT, '_Panic Quit', f_panic_quit)
     
     icon.connect('activate', f_toggle)
     icon.connect('popup-menu', f_popup)
