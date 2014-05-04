@@ -109,7 +109,7 @@ def f_toggle(widget, data = None):
     last_time = now
     process.send_signal(signal.SIGUSR2)
     icon.set_from_icon_name('blueshift-on' if paused else 'blueshift-off')
-    toggle_menu.set_label(gettext.gettext('Disabl_e' if paused else 'Enabl_e'))
+    toggle_menu.set_label(gettext.gettext('_Disable' if paused else '_Enable'))
     paused = not paused
 
 def f_reload(widget, data = None):
@@ -147,10 +147,10 @@ try:
     icon.set_tooltip('Blueshift')
     
     menu = gtk.Menu()
-    toggle_menu = create_menu(menu, None, 'Disabl_e', f_toggle)
-    reload_menu = create_menu(menu, gtk.STOCK_REFRESH, '_Reload', f_reload)
+    toggle_menu     = create_menu(menu, None, '_Disable', f_toggle)
+    reload_menu     = create_menu(menu, gtk.STOCK_REFRESH, '_Reload', f_reload)
     create_menu(menu, None, None, None)
-    quit_menu = create_menu(menu, gtk.STOCK_QUIT, '_Quit', f_quit)
+    quit_menu       = create_menu(menu, gtk.STOCK_QUIT, '_Quit', f_quit)
     panic_quit_menu = create_menu(menu, gtk.STOCK_QUIT, '_Panic Quit', f_panic_quit)
     
     icon.connect('activate', f_toggle)
