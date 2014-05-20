@@ -157,6 +157,10 @@ signal.signal(signal.SIGCHLD, process_quit)
 process = subprocess.Popen(['blueshift'] + sys.argv[1:], stdout = sys.stdout, stderr = sys.stderr)
 last_time = time.time() - 1
 
+signal_relay = lambda signo, _frame : os.kill(process.pid, signal)
+for signo in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGUSR1, signal.SIGUSR2):
+    signal.signal(signo, signal_relay)
+
 
 try:
     icon = gtk.StatusIcon()
