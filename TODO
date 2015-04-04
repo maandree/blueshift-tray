@@ -1,0 +1,3 @@
+Make extensible
+Add a blueshift-tray-attach command that does not spawn its own blueshift
+
